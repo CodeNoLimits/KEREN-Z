@@ -1,17 +1,24 @@
 [build]
+  base = "client"
   command = "npm install && npm run build"
-  publish = "dist/public"
-  
+  publish = "dist"
+
 [build.environment]
   NODE_VERSION = "20"
   NPM_FLAGS = "--legacy-peer-deps"
 
 [[redirects]]
   from = "/api/*"
-  to = "/.netlify/functions/:splat"
+  to = "https://keren-z-api.onrender.com/api/:splat"
   status = 200
-  
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+
+# Variables d'environnement à configurer dans Netlify UI:
+# VITE_SUPABASE_URL
+# VITE_SUPABASE_ANON_KEY
+# VITE_STRIPE_PUBLISHABLE_KEY
+# VITE_API_URL=https://keren-z-api.onrender.com

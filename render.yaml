@@ -1,21 +1,18 @@
-# 🚀 Render.com Configuration - Keren Rabbi Israel
-# Full-stack React + Express + Neon PostgreSQL + Builder.io
+# 🚀 Render.com Configuration - KEREN-Z
+# Backend API Service (Express + Supabase)
 
 services:
-  # 📦 Web Service (Frontend + Backend)
+  # 📦 Backend API Service
   - type: web
-    name: keren-rabbi-israel
+    name: keren-z-api
     env: node
-    region: oregon
+    region: frankfurt
     plan: free
-    
+
     # 🔧 Build & Start
-    buildCommand: npm install && npm run build
-    startCommand: npm run start:prod
-    
-    # 📁 Root Directory (if needed)
-    # rootDir: keren-original-backup
-    
+    buildCommand: cd server && npm install
+    startCommand: cd server && node index.js
+
     # 🌍 Environment Variables
     envVars:
       # Node Configuration
@@ -24,49 +21,50 @@ services:
       - key: NODE_ENV
         value: production
       - key: PORT
-        value: 5000
-      
-      # 🗄️ Database (Neon PostgreSQL)
-      - key: DATABASE_URL
-        sync: false  # À configurer manuellement dans Dashboard
-        # Format: postgresql://user:password@host/database?sslmode=require
-      
-      # 🏗️ Builder.io CMS (B6)
-      - key: PUBLIC_BUILDER_KEY
-        value: 64acbf47412843a9a0fbf6f4c8852e80
-      
-      # 🎨 Optional Services (à configurer si nécessaire)
-      - key: OPENAI_API_KEY
-        sync: false
-      - key: GEMINI_API_KEY
-        sync: false
+        value: 10000
+
+      # 🗄️ Database (Supabase)
+      - key: SUPABASE_URL
+        sync: false  # À configurer manuellement
+      - key: SUPABASE_SERVICE_KEY
+        sync: false  # Clé privée backend
+
+      # 💳 Stripe Payment
       - key: STRIPE_SECRET_KEY
         sync: false
-      - key: SENDGRID_API_KEY
+      - key: STRIPE_WEBHOOK_SECRET
         sync: false
-    
+
+      # 📧 Email Service
+      - key: EMAIL_SERVICE_API_KEY
+        sync: false
+
+      # 🌐 Frontend URL (CORS)
+      - key: FRONTEND_URL
+        value: https://keren-z.netlify.app  # À ajuster avec votre URL Netlify
+
     # ❤️ Health Check
     healthCheckPath: /api/health
-    
+
     # 🔄 Auto-Deploy
     autoDeploy: true
-    
-    # 📝 Build Settings (auto-detect all changes)
-    # buildFilter not needed since we're at project root
 
 # 📚 Documentation
-# 
+#
 # Pour déployer:
-# 1. Connecter le repo GitHub à Render
-# 2. Créer un service "Web Service"
-# 3. Sélectionner la branche de déploiement
-# 4. Render détectera automatiquement ce fichier
-# 5. Ajouter DATABASE_URL dans Environment (Render Dashboard)
-# 
-# DATABASE_URL:
-# Créer une base Neon sur https://console.neon.tech
-# Format: postgresql://[user]:[password]@[host]/[dbname]?sslmode=require
-# 
-# Builder.io:
-# Dashboard: https://builder.io/content
-# API Key déjà configurée: 64acbf47412843a9a0fbf6f4c8852e80
+# 1. Connecter le repo GitHub à Render: https://github.com/CodeNoLimits/KEREN-Z
+# 2. Render détectera automatiquement ce fichier render.yaml
+# 3. Configurer les variables d'environnement dans le Dashboard
+#
+# Supabase:
+# - Créer projet sur https://supabase.com
+# - Copier URL et Service Key
+#
+# Stripe:
+# - Dashboard: https://dashboard.stripe.com
+# - Copier Secret Key (sk_live_xxx)
+# - Configurer webhook → URL Render/api/webhooks/stripe
+#
+# Frontend:
+# - Déployé sur Netlify
+# - Mettre à jour FRONTEND_URL avec l'URL Netlify réelle
