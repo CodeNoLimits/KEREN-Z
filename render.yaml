@@ -1,70 +1,197 @@
 # 🚀 Render.com Configuration - KEREN-Z
-# Backend API Service (Express + Supabase)
+# Backend API Service (Express + TypeScript + Supabase)
 
 services:
   # 📦 Backend API Service
   - type: web
     name: keren-z-api
     env: node
-    region: frankfurt
-    plan: free
+    runtime: node
+    region: frankfurt  # Choisir la région la plus proche
+    plan: free  # Plan gratuit pour commencer
 
-    # 🔧 Build & Start
-    buildCommand: cd server && npm install
-    startCommand: cd server && node index.js
+    # 📁 Repository & Branch
+    # Render détectera automatiquement le repo depuis GitHub
+    # Branch par défaut: main
+
+    # 🔧 Build & Start Commands
+    # Le projet utilise TypeScript et nécessite compilation
+    buildCommand: npm install && npm run build
+    startCommand: npm run start:render
 
     # 🌍 Environment Variables
     envVars:
       # Node Configuration
       - key: NODE_VERSION
-        value: 20
+        value: "20"
       - key: NODE_ENV
         value: production
       - key: PORT
-        value: 10000
+        value: "10000"
 
       # 🗄️ Database (Supabase)
       - key: SUPABASE_URL
-        sync: false  # À configurer manuellement
+        sync: false  # ⚠️ À configurer dans Dashboard Render
       - key: SUPABASE_SERVICE_KEY
-        sync: false  # Clé privée backend
+        sync: false  # ⚠️ Clé privée backend uniquement
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_ANON_KEY
+        sync: false
 
       # 💳 Stripe Payment
       - key: STRIPE_SECRET_KEY
-        sync: false
+        sync: false  # ⚠️ sk_live_xxx ou sk_test_xxx
       - key: STRIPE_WEBHOOK_SECRET
+        sync: false  # ⚠️ whsec_xxx
+      - key: VITE_STRIPE_PUBLISHABLE_KEY
         sync: false
 
-      # 📧 Email Service
-      - key: EMAIL_SERVICE_API_KEY
+      # 📧 Email Service (SendGrid)
+      - key: SENDGRID_API_KEY
+        sync: false  # ⚠️ API Key SendGrid
+
+      # 🤖 AI Services (Optionnel)
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
         sync: false
 
       # 🌐 Frontend URL (CORS)
       - key: FRONTEND_URL
-        value: https://keren-z.netlify.app  # À ajuster avec votre URL Netlify
+        value: https://keren-z.netlify.app  # ⚠️ Ajuster avec URL Netlify réelle
+
+      # 🏗️ Builder.io (Optionnel)
+      - key: PUBLIC_BUILDER_KEY
+        value: 64acbf47412843a9a0fbf6f4c8852e80
 
     # ❤️ Health Check
+    # Endpoint pour vérifier que le serveur est opérationnel
     healthCheckPath: /api/health
 
     # 🔄 Auto-Deploy
+    # Déploiement automatique à chaque push sur main
     autoDeploy: true
 
-# 📚 Documentation
+# 📚 DOCUMENTATION COMPLÈTE
 #
-# Pour déployer:
-# 1. Connecter le repo GitHub à Render: https://github.com/CodeNoLimits/KEREN-Z
-# 2. Render détectera automatiquement ce fichier render.yaml
-# 3. Configurer les variables d'environnement dans le Dashboard
+# ═══════════════════════════════════════════════════════════
+# 🎯 ÉTAPES DE DÉPLOIEMENT
+# ═══════════════════════════════════════════════════════════
 #
-# Supabase:
-# - Créer projet sur https://supabase.com
-# - Copier URL et Service Key
+# 1️⃣ Connecter GitHub à Render:
+#    - Aller sur https://dashboard.render.com
+#    - Cliquer "New +" → "Blueprint"
+#    - Connecter repository: https://github.com/CodeNoLimits/KEREN-Z
+#    - Render détectera automatiquement ce fichier render.yaml
+#    - Cliquer "Apply"
 #
-# Stripe:
-# - Dashboard: https://dashboard.stripe.com
-# - Copier Secret Key (sk_live_xxx)
-# - Configurer webhook → URL Render/api/webhooks/stripe
+# 2️⃣ Configurer les Variables d'Environnement:
+#    Une fois le service créé, aller dans Environment et ajouter:
 #
-# Frontend:
-# - Déployé sur Netlify
-# - Mettre à jour FRONTEND_URL avec l'URL Netlify réelle
+#    📌 SUPABASE (OBLIGATOIRE):
+#    - SUPABASE_URL=https://xxx.supabase.co
+#    - SUPABASE_SERVICE_KEY=eyJxxx (service_role key)
+#    - VITE_SUPABASE_URL=https://xxx.supabase.co
+#    - VITE_SUPABASE_ANON_KEY=eyJxxx (anon key)
+#
+#    💳 STRIPE (OBLIGATOIRE):
+#    - STRIPE_SECRET_KEY=sk_live_xxx (ou sk_test_xxx pour test)
+#    - STRIPE_WEBHOOK_SECRET=whsec_xxx
+#    - VITE_STRIPE_PUBLISHABLE_KEY=pk_live_xxx
+#
+#    📧 SENDGRID (RECOMMANDÉ):
+#    - SENDGRID_API_KEY=SG.xxx
+#
+#    🌐 FRONTEND URL:
+#    - FRONTEND_URL=https://votre-site.netlify.app
+#
+# 3️⃣ Attendre le Build:
+#    Le premier déploiement peut prendre 5-10 minutes
+#    Surveiller les logs dans le dashboard Render
+#
+# 4️⃣ Tester le Déploiement:
+#    curl https://keren-z-api.onrender.com/api/health
+#    Devrait retourner: {"status":"ok","timestamp":"..."}
+#
+# ═══════════════════════════════════════════════════════════
+# 🔑 OBTENIR LES CLÉS API
+# ═══════════════════════════════════════════════════════════
+#
+# 🗄️ Supabase:
+#    1. Créer projet sur https://supabase.com
+#    2. Settings → API → Project URL (SUPABASE_URL)
+#    3. Settings → API → service_role key (SUPABASE_SERVICE_KEY)
+#    4. Settings → API → anon public key (VITE_SUPABASE_ANON_KEY)
+#
+# 💳 Stripe:
+#    1. Dashboard: https://dashboard.stripe.com
+#    2. Developers → API keys → Secret key (STRIPE_SECRET_KEY)
+#    3. Developers → API keys → Publishable key (VITE_STRIPE_PUBLISHABLE_KEY)
+#    4. Webhooks:
+#       - Add endpoint: https://keren-z-api.onrender.com/api/webhooks/stripe
+#       - Événements: payment_intent.succeeded, payment_intent.payment_failed
+#       - Copier Webhook Secret (STRIPE_WEBHOOK_SECRET)
+#
+# 📧 SendGrid:
+#    1. Créer compte sur https://sendgrid.com
+#    2. Settings → API Keys → Create API Key
+#    3. Full Access permissions
+#    4. Copier la clé (SENDGRID_API_KEY)
+#
+# ═══════════════════════════════════════════════════════════
+# ⚙️ CONFIGURATION POST-DÉPLOIEMENT
+# ═══════════════════════════════════════════════════════════
+#
+# 1. Configurer Stripe Webhook:
+#    - URL: https://keren-z-api.onrender.com/api/webhooks/stripe
+#    - Ajouter STRIPE_WEBHOOK_SECRET dans Render
+#
+# 2. Mettre à jour l'URL Frontend dans Netlify:
+#    - VITE_API_URL=https://keren-z-api.onrender.com
+#
+# 3. Configurer CORS si nécessaire:
+#    - S'assurer que FRONTEND_URL correspond à votre site Netlify
+#
+# ═══════════════════════════════════════════════════════════
+# 🔍 DÉPANNAGE
+# ═══════════════════════════════════════════════════════════
+#
+# ❌ Build Failed:
+#    - Vérifier les logs dans Render Dashboard
+#    - S'assurer que npm install && npm run build fonctionne localement
+#    - Node version: 20 (définie dans envVars)
+#
+# ❌ Service Won't Start:
+#    - Vérifier que toutes les variables d'environnement sont définies
+#    - Vérifier les logs de démarrage
+#    - Health check doit répondre sur /api/health
+#
+# ❌ Database Connection Failed:
+#    - Vérifier SUPABASE_URL et SUPABASE_SERVICE_KEY
+#    - Tester la connexion depuis un autre outil
+#
+# ❌ CORS Errors:
+#    - Vérifier que FRONTEND_URL correspond exactement à l'URL Netlify
+#    - Pas de trailing slash
+#
+# ═══════════════════════════════════════════════════════════
+# 📊 MONITORING & MAINTENANCE
+# ═══════════════════════════════════════════════════════════
+#
+# - Logs: Dashboard Render → Service → Logs
+# - Metrics: CPU, RAM, Response time
+# - Health: Render vérifie /api/health toutes les 30 secondes
+# - Downtime: Plan gratuit peut avoir cold starts (délai de 30s)
+#
+# ═══════════════════════════════════════════════════════════
+# 🚀 PRÊT POUR PRODUCTION
+# ═══════════════════════════════════════════════════════════
+#
+# ✅ Service déployé
+# ✅ Variables d'environnement configurées
+# ✅ Stripe webhook configuré
+# ✅ Health check opérationnel
+# ✅ Frontend connecté
+#
+# Le backend est LIVE ! 🎉
