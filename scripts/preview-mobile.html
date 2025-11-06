@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preview Mobile - Keren David Store</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .info {
+            background: #f0f4ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+        .code {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+        }
+        .btn {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 10px 5px;
+            transition: transform 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .btn-success {
+            background: #10b981;
+        }
+        .steps {
+            counter-reset: step-counter;
+            list-style: none;
+            padding: 0;
+        }
+        .steps li {
+            counter-increment: step-counter;
+            margin: 15px 0;
+            padding-left: 40px;
+            position: relative;
+        }
+        .steps li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: #667eea;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .mobile-frame {
+            border: 8px solid #333;
+            border-radius: 20px;
+            width: 390px;
+            height: 844px;
+            margin: 20px auto;
+            background: white;
+            overflow: hidden;
+            position: relative;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 Preview Mobile - Store</h1>
+        
+        <div class="info">
+            <strong>🎯 Objectif:</strong> Tester le magasin en mode mobile localement
+        </div>
+
+        <h2>🚀 Méthode 1: Serveur de Dev (Recommandé)</h2>
+        <ol class="steps">
+            <li>Ouvre un terminal dans le dossier du projet</li>
+            <li>Lance la commande :
+                <div class="code">npm run dev:mobile</div>
+            </li>
+            <li>Ouvre Chrome et va sur <strong>http://localhost:5173/store</strong></li>
+            <li>Appuie sur <strong>F12</strong> (ou <strong>Cmd+Option+I</strong> sur Mac)</li>
+            <li>Clique sur l'icône mobile (📱) ou appuie sur <strong>Cmd+Shift+M</strong></li>
+            <li>Sélectionne <strong>iPhone 12 Pro</strong> dans le menu déroulant</li>
+            <li>Teste les filtres en cliquant sur le bouton "Filtres"</li>
+        </ol>
+
+        <h2>🖥️ Méthode 2: Script Automatique</h2>
+        <ol class="steps">
+            <li>Ouvre un terminal</li>
+            <li>Lance :
+                <div class="code">chmod +x scripts/preview-local.sh<br>./scripts/preview-local.sh mobile</div>
+            </li>
+            <li>Le serveur démarre automatiquement</li>
+        </ol>
+
+        <h2>✅ Checklist Mobile Store</h2>
+        <ul>
+            <li>✅ Bouton "Filtres" visible en haut à gauche/droite</li>
+            <li>✅ Sheet s'ouvre depuis le côté (gauche en FR, droite en HE)</li>
+            <li>✅ Tous les filtres présents : Prix, Auteurs, Langues, Catégories, Formats, Tailles</li>
+            <li>✅ Recherche fonctionne dans le Sheet</li>
+            <li>✅ Produits affichés en 1 colonne</li>
+            <li>✅ Bouton "Effacer filtres" fonctionne</li>
+            <li>✅ Sheet se ferme en cliquant en dehors ou sur X</li>
+            <li>✅ Layout responsive (pas de débordement horizontal)</li>
+        </ul>
+
+        <div class="info" style="margin-top: 30px;">
+            <strong>💡 Astuce:</strong> Garde DevTools ouvert pendant les tests pour voir les erreurs console
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="http://localhost:5173/store" class="btn btn-success" target="_blank">
+                🚀 Ouvrir Store Local
+            </a>
+            <a href="http://localhost:5173" class="btn" target="_blank">
+                🏠 Accueil
+            </a>
+        </div>
+    </div>
+</body>
+</html>
+
