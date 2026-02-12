@@ -1,9 +1,15 @@
-import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { AlertCircle, Mail, Phone, Crown, Star } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { useQuery } from "@tanstack/react-query";
+import { AlertCircle, Crown, Mail, Phone, Star } from "lucide-react";
 
 interface StripeStatus {
   configured: boolean;
@@ -33,9 +39,12 @@ interface StripeNotConfiguredFallbackProps {
   children: React.ReactNode;
 }
 
-export function StripeNotConfiguredFallback({ plan, children }: StripeNotConfiguredFallbackProps) {
+export function StripeNotConfiguredFallback({
+  plan,
+  children,
+}: StripeNotConfiguredFallbackProps) {
   const { data: stripeStatus, isLoading } = useQuery<StripeStatus>({
-    queryKey: ['/api/stripe-status'],
+    queryKey: ["/api/stripe-status"],
     retry: false,
     refetchOnWindowFocus: false,
   });
@@ -71,16 +80,25 @@ export function StripeNotConfiguredFallback({ plan, children }: StripeNotConfigu
             <Crown className="h-8 w-8 text-white" />
           </div>
         </div>
-        
-        <CardTitle className="text-2xl font-bold text-primary mb-2" data-testid="plan-title">
+
+        <CardTitle
+          className="text-2xl font-bold text-primary mb-2"
+          data-testid="plan-title"
+        >
           {plan.nameHebrew}
         </CardTitle>
-        <CardDescription className="text-lg text-muted-foreground" data-testid="plan-description">
+        <CardDescription
+          className="text-lg text-muted-foreground"
+          data-testid="plan-description"
+        >
           {plan.descriptionHebrew}
         </CardDescription>
-        
+
         <div className="text-center mt-4">
-          <div className="text-4xl font-bold text-primary" data-testid="plan-price">
+          <div
+            className="text-4xl font-bold text-primary"
+            data-testid="plan-price"
+          >
             ₪{(plan.price / 100).toFixed(0)}
           </div>
           <div className="text-muted-foreground">לחודש</div>
@@ -93,42 +111,58 @@ export function StripeNotConfiguredFallback({ plan, children }: StripeNotConfigu
           <h4 className="font-semibold text-foreground">מה כלול במנוי:</h4>
           <ul className="space-y-2">
             {plan.featuresHebrew.map((feature, index) => (
-              <li key={index} className="flex items-start gap-2" data-testid={`feature-${index}`}>
+              <li
+                key={index}
+                className="flex items-start gap-2"
+                data-testid={`feature-${index}`}
+              >
                 <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
-                <span className="text-sm text-muted-foreground leading-relaxed">{feature}</span>
+                <span className="text-sm text-muted-foreground leading-relaxed">
+                  {feature}
+                </span>
               </li>
             ))}
           </ul>
         </div>
 
         {/* Service unavailable alert */}
-        <Alert className="border-amber-300 bg-amber-50 dark:bg-amber-950 dark:border-amber-500" data-testid="service-unavailable-alert">
+        <Alert
+          className="border-amber-300 bg-amber-50 dark:bg-amber-950 dark:border-amber-500"
+          data-testid="service-unavailable-alert"
+        >
           <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-          <AlertTitle className="text-amber-800 dark:text-amber-200">השירות זמנית לא זמין</AlertTitle>
+          <AlertTitle className="text-amber-800 dark:text-amber-200">
+            השירות זמנית לא זמין
+          </AlertTitle>
           <AlertDescription className="text-amber-700 dark:text-amber-300">
             מערכת המנויים נמצאת כרגע בתחזוקה. לרכישת מנוי, אנא צרו קשר ישירות:
           </AlertDescription>
         </Alert>
 
         {/* Contact information */}
-        <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg space-y-3" data-testid="contact-info">
-          <h4 className="font-semibold text-foreground">צרו קשר לרכישת מנוי:</h4>
-          
+        <div
+          className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg space-y-3"
+          data-testid="contact-info"
+        >
+          <h4 className="font-semibold text-foreground">
+            צרו קשר לרכישת מנוי:
+          </h4>
+
           <div className="flex items-center gap-3 text-sm">
             <Mail className="w-4 h-4 text-primary" />
-            <a 
-              href="mailto:support@haesh-sheli.co.il" 
+            <a
+              href="mailto:support@haesh-sheli.co.il"
               className="text-primary hover:underline"
               data-testid="contact-email"
             >
               support@haesh-sheli.co.il
             </a>
           </div>
-          
+
           <div className="flex items-center gap-3 text-sm">
             <Phone className="w-4 h-4 text-primary" />
-            <a 
-              href="tel:+972-2-123-4567" 
+            <a
+              href="tel:+972587308000"
               className="text-primary hover:underline"
               data-testid="contact-phone"
             >
@@ -139,8 +173,8 @@ export function StripeNotConfiguredFallback({ plan, children }: StripeNotConfigu
 
         {/* Contact CTA buttons */}
         <div className="flex flex-col gap-3">
-          <Button 
-            asChild 
+          <Button
+            asChild
             className="w-full btn-breslov-primary text-white py-3 text-lg font-bold shadow-lg"
             data-testid="button-contact-email"
           >
@@ -149,21 +183,24 @@ export function StripeNotConfiguredFallback({ plan, children }: StripeNotConfigu
               צור קשר למנוי באימייל
             </a>
           </Button>
-          
-          <Button 
-            asChild 
-            variant="outline" 
+
+          <Button
+            asChild
+            variant="outline"
             className="w-full border-primary text-primary hover:bg-primary hover:text-white py-3 text-lg font-bold"
             data-testid="button-contact-phone"
           >
-            <a href="tel:+972-2-123-4567">
+            <a href="tel:+972587308000">
               <Phone className="mr-2 h-5 w-5" />
               התקשר עכשיו
             </a>
           </Button>
         </div>
 
-        <div className="text-xs text-muted-foreground text-center mt-4" data-testid="fallback-note">
+        <div
+          className="text-xs text-muted-foreground text-center mt-4"
+          data-testid="fallback-note"
+        >
           * צוות השירות יעזור לכם להקים את המנוי וליהנות מכל היתרונות
         </div>
       </CardContent>

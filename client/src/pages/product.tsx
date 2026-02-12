@@ -1,96 +1,296 @@
-import { useState } from 'react';
-import { useRoute } from 'wouter';
-import { realBreslovProducts } from '../data/realProducts';
-import { useCart } from '../contexts/CartContext';
-import { useToast } from '@/hooks/use-toast';
-import { getBookDisplayTitle, getInterfaceDisplayTitle } from '../utils/bookTitleHelper';
-import { convertImagePath } from '../utils/imagePathHelper';
-import { useLanguage } from '../contexts/LanguageContext';
-import { Header } from '../components/Header';
-import type { Product } from '../../../shared/schema';
+import { useToast } from "@/hooks/use-toast";
+import { useSEO } from "@/hooks/useSEO";
+import {
+  Check,
+  Minus,
+  Plus,
+  RotateCcw,
+  Shield,
+  ShoppingBag,
+  Star,
+  Truck,
+} from "lucide-react";
+import { useState } from "react";
+import { Link, useRoute } from "wouter";
+import { Footer } from "../components/Footer";
+import { Header } from "../components/Header";
+import { useCart } from "../contexts/CartContext";
+import { useCurrency } from "../contexts/CurrencyContext";
+import { useLanguage } from "../contexts/LanguageContext";
+import { realBreslovProducts } from "../data/realProducts";
+import { getInterfaceDisplayTitle } from "../utils/bookTitleHelper";
+import {
+  convertImagePath,
+  getFirstProductImage,
+} from "../utils/imagePathHelper";
+
+/* ═══════════════════════════════════════════
+   PRODUCT DETAIL — OZ VEHADAR CLEAN DESIGN
+   Image gallery, variant selector, add to cart,
+   product details, related products
+   ═══════════════════════════════════════════ */
+
+const productText: Record<string, Record<string, string>> = {
+  he: {
+    addToCart: "הוסף לסל",
+    added: "נוסף לסל!",
+    addedDesc: "נוסף בהצלחה לסל הקניות",
+    outOfStock: "אזל מהמלאי",
+    inStock: "במלאי",
+    quantity: "כמות",
+    chooseVariant: "בחירת גודל וכריכה",
+    features: "מאפיינים מיוחדים",
+    details: "פרטי המוצר",
+    language: "שפה",
+    publisher: "הוצאה",
+    pages: "עמודים",
+    author: "מחבר",
+    related: "ספרים דומים",
+    reviews: "ביקורות",
+    freeShipping: "משלוח חינם מ-₪399",
+    securePayment: "תשלום מאובטח",
+    easyReturns: "החזרה קלה",
+    volumes: "כרכים",
+    volume: "כרך אחד",
+    dimensions: "מידות",
+    binding: "כריכה",
+    format: "פורמט",
+    size: "גודל",
+  },
+  en: {
+    addToCart: "Add to Cart",
+    added: "Added to Cart!",
+    addedDesc: "Successfully added to cart",
+    outOfStock: "Out of Stock",
+    inStock: "In Stock",
+    quantity: "Quantity",
+    chooseVariant: "Choose size & binding",
+    features: "Special Features",
+    details: "Product Details",
+    language: "Language",
+    publisher: "Publisher",
+    pages: "Pages",
+    author: "Author",
+    related: "Similar Books",
+    reviews: "reviews",
+    freeShipping: "Free shipping from ₪399",
+    securePayment: "Secure payment",
+    easyReturns: "Easy returns",
+    volumes: "volumes",
+    volume: "1 volume",
+    dimensions: "Dimensions",
+    binding: "Binding",
+    format: "Format",
+    size: "Size",
+  },
+  fr: {
+    addToCart: "Ajouter au panier",
+    added: "Ajouté au panier !",
+    addedDesc: "Ajouté avec succès au panier",
+    outOfStock: "Rupture de stock",
+    inStock: "En stock",
+    quantity: "Quantité",
+    chooseVariant: "Choisissez taille et reliure",
+    features: "Caractéristiques spéciales",
+    details: "Détails du produit",
+    language: "Langue",
+    publisher: "Éditeur",
+    pages: "Pages",
+    author: "Auteur",
+    related: "Produits similaires",
+    reviews: "avis",
+    freeShipping: "Livraison gratuite dès ₪399",
+    securePayment: "Paiement sécurisé",
+    easyReturns: "Retours faciles",
+    volumes: "volumes",
+    volume: "1 volume",
+    dimensions: "Dimensions",
+    binding: "Reliure",
+    format: "Format",
+    size: "Taille",
+  },
+  es: {
+    addToCart: "Añadir al carrito",
+    added: "¡Añadido al carrito!",
+    addedDesc: "Añadido exitosamente al carrito",
+    outOfStock: "Agotado",
+    inStock: "En stock",
+    quantity: "Cantidad",
+    chooseVariant: "Elija tamaño y encuadernación",
+    features: "Características especiales",
+    details: "Detalles del producto",
+    language: "Idioma",
+    publisher: "Editor",
+    pages: "Páginas",
+    author: "Autor",
+    related: "Productos similares",
+    reviews: "reseñas",
+    freeShipping: "Envío gratis desde ₪399",
+    securePayment: "Pago seguro",
+    easyReturns: "Devoluciones fáciles",
+    volumes: "volúmenes",
+    volume: "1 volumen",
+    dimensions: "Dimensiones",
+    binding: "Encuadernación",
+    format: "Formato",
+    size: "Tamaño",
+  },
+  ru: {
+    addToCart: "В корзину",
+    added: "Добавлено в корзину!",
+    addedDesc: "Успешно добавлено в корзину",
+    outOfStock: "Нет в наличии",
+    inStock: "В наличии",
+    quantity: "Количество",
+    chooseVariant: "Выберите размер и переплет",
+    features: "Особые характеристики",
+    details: "Детали продукта",
+    language: "Язык",
+    publisher: "Издатель",
+    pages: "Страницы",
+    author: "Автор",
+    related: "Похожие книги",
+    reviews: "отзывов",
+    freeShipping: "Бесплатная доставка от ₪399",
+    securePayment: "Безопасная оплата",
+    easyReturns: "Простой возврат",
+    volumes: "томов",
+    volume: "1 том",
+    dimensions: "Размеры",
+    binding: "Переплет",
+    format: "Формат",
+    size: "Размер",
+  },
+};
 
 export default function Product() {
-  const [match, params] = useRoute('/product/:id');
-  const [selectedVariant, setSelectedVariant] = useState<string>('');
+  const [match, params] = useRoute("/product/:id");
+  const [selectedVariant, setSelectedVariant] = useState<string>("");
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
   const { addItem } = useCart();
+  const { formatPrice } = useCurrency();
   const { toast } = useToast();
   const { currentLanguage, setLanguage, t } = useLanguage();
+  const txt = productText[currentLanguage] || productText.he;
+  const isRtl = currentLanguage === "he";
 
   if (!match || !params?.id) {
-    return <div>{t('error')}: {t('noResults')}</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-500">{t("error")}</p>
+      </div>
+    );
   }
 
   const product = realBreslovProducts[params.id];
-  
+
   if (!product) {
-    return <div>{t('error')}: {t('noResults')}</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-500">{t("noResults")}</p>
+      </div>
+    );
   }
+
+  const productTitle = isRtl ? product.name : product.nameEn || product.name;
+  useSEO({
+    title: `${productTitle} | ${isRtl ? "האש שלי" : "Haesh Sheli"}`,
+    description: product.description?.slice(0, 160) || productTitle,
+    ogImage: product.image,
+    ogType: "product",
+  });
 
   const variants = product.variants || [];
-  const currentVariant = variants.find(v => v.id === selectedVariant) || variants[0];
-  
-  if (!currentVariant) {
-    return <div>{t('error')}: Variant not found</div>;
-  }
+  const currentVariant =
+    variants.find((v) => v.id === selectedVariant) || variants[0];
+
+  const handleAddToCart = () => {
+    if (!currentVariant?.inStock) return;
+    addItem({
+      productId: product.id,
+      variantId: currentVariant.id,
+      name: getInterfaceDisplayTitle(product, currentLanguage),
+      nameEnglish: product.nameEnglish || product.name,
+      image: product.images?.[0] || "",
+      price: currentVariant.price,
+      quantity,
+      variant: {
+        format: currentVariant.format,
+        binding: currentVariant.binding,
+        size: currentVariant.size,
+      },
+    });
+    toast({
+      title: txt.added,
+      description: `${getInterfaceDisplayTitle(product, currentLanguage)} — ${txt.addedDesc}`,
+    });
+  };
+
+  const displayTitle = getInterfaceDisplayTitle(product, currentLanguage);
+  const relatedProducts = Object.values(realBreslovProducts)
+    .filter((p) => p.id !== product.id && p.category === product.category)
+    .slice(0, 4);
 
   return (
-    <div className="product-page page-template-default" style={{direction: currentLanguage === 'he' ? 'rtl' : 'ltr'}}>
-      <section style={{background: '#333', color: 'white', padding: '8px 0'}}>
-        <div style={{maxWidth: '1400px', margin: '0 auto', padding: '0 2rem'}}>
-          <span>{t('shippingBanner')}</span>
-        </div>
-      </section>
+    <div style={{ direction: isRtl ? "rtl" : "ltr" }}>
+      <Header
+        currentLanguage={currentLanguage}
+        onLanguageChange={setLanguage}
+      />
 
-      <Header currentLanguage={currentLanguage} onLanguageChange={setLanguage} />
+      <main className="bg-white">
+        {/* ── Breadcrumb ── */}
+        <nav className="container-haesh py-3 text-sm text-gray-400">
+          <Link href="/" className="hover:text-keren-blue transition-colors">
+            {t("home")}
+          </Link>
+          <span className="mx-2">{isRtl ? "←" : "→"}</span>
+          <Link
+            href="/store"
+            className="hover:text-keren-blue transition-colors"
+          >
+            {t("store")}
+          </Link>
+          <span className="mx-2">{isRtl ? "←" : "→"}</span>
+          <span className="text-gray-700 font-medium">{displayTitle}</span>
+        </nav>
 
-      {/* BREADCRUMBS */}
-      <section style={{background: '#f8f9fa', padding: '1rem 0', borderBottom: '1px solid #ddd'}}>
-        <div className="container" style={{maxWidth: '1200px', margin: '0 auto', padding: '0 2rem'}}>
-          <nav style={{fontSize: '0.9rem', color: '#666'}}>
-            <a href="/" style={{color: '#dc3545', textDecoration: 'none'}}>{t('home')}</a>
-            <span style={{margin: '0 0.5rem'}}>←</span>
-            <a href="/store" style={{color: '#dc3545', textDecoration: 'none'}}>{t('store')}</a>
-            <span style={{margin: '0 0.5rem'}}>←</span>
-            <span style={{color: '#999'}}>{getInterfaceDisplayTitle(product, currentLanguage)}</span>
-          </nav>
-        </div>
-      </section>
-
-      {/* MAIN PRODUCT CONTENT */}
-      <section style={{background: 'white', padding: '3rem 0'}}>
-        <div className="container" style={{maxWidth: '1200px', margin: '0 auto', padding: '0 2rem'}}>
-          <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem', alignItems: 'start'}}>
-            
-            {/* PRODUCT IMAGES */}
+        {/* ── Main Product Section ── */}
+        <section className="container-haesh pb-16">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
+            {/* ── Image Gallery ── */}
             <div>
-              <div style={{marginBottom: '1rem'}}>
-                <img 
-                  src={convertImagePath(product.images && product.images[selectedImage] || '')} 
-                  alt={getBookDisplayTitle(product)}
-                  style={{width: '100%', height: '500px', objectFit: 'cover', borderRadius: '10px', border: '1px solid #ddd'}}
-                />
+              <div className="bg-gray-50 rounded-xl overflow-hidden mb-4 aspect-[3/4]">
+                {product.images && product.images.length > 0 ? (
+                  <img
+                    src={convertImagePath(product.images[selectedImage])}
+                    alt={displayTitle}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <span className="text-6xl opacity-20">📖</span>
+                  </div>
+                )}
               </div>
-              
+              {/* Thumbnails */}
               {product.images && product.images.length > 1 && (
-                <div style={{display: 'flex', gap: '0.5rem', justifyContent: 'center'}}>
-                  {product.images.map((image, index) => (
+                <div className="flex gap-2 justify-center">
+                  {product.images.map((img, i) => (
                     <button
-                      key={index}
-                      onClick={() => setSelectedImage(index)}
-                      style={{
-                        border: selectedImage === index ? '2px solid #dc3545' : '1px solid #ddd',
-                        borderRadius: '5px',
-                        padding: '2px',
-                        background: 'white',
-                        cursor: 'pointer'
-                      }}
+                      key={i}
+                      onClick={() => setSelectedImage(i)}
+                      className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
+                        selectedImage === i
+                          ? "border-keren-orange ring-2 ring-keren-orange/30"
+                          : "border-gray-200 hover:border-gray-300"
+                      }`}
                     >
-                      <img 
-                        src={convertImagePath(image)} 
-                        alt={`${getBookDisplayTitle(product)} ${index + 1}`}
-                        style={{width: '60px', height: '60px', objectFit: 'cover', borderRadius: '3px'}}
+                      <img
+                        src={convertImagePath(img)}
+                        alt={`${displayTitle} ${i + 1}`}
+                        className="w-full h-full object-cover"
                       />
                     </button>
                   ))}
@@ -98,254 +298,294 @@ export default function Product() {
               )}
             </div>
 
-            {/* PRODUCT INFO */}
+            {/* ── Product Info ── */}
             <div>
-              <div style={{marginBottom: '1rem'}}>
-                <span style={{background: '#dc3545', color: 'white', padding: '0.3rem 0.8rem', borderRadius: '15px', fontSize: '0.8rem', fontWeight: 'bold'}}>
-                  {product.category}
-                </span>
-              </div>
+              {/* Category badge */}
+              <span className="inline-block bg-keren-blue/10 text-keren-blue text-xs font-semibold px-3 py-1 rounded-full mb-3">
+                {product.category}
+              </span>
 
-              <h1 style={{fontSize: '2.5rem', fontWeight: '700', color: '#1a1a1a', marginBottom: '1rem', lineHeight: '1.3'}}>
-                {getInterfaceDisplayTitle(product, currentLanguage)}
+              {/* Title */}
+              <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-3 leading-tight">
+                {displayTitle}
               </h1>
 
-              <div style={{display: 'flex', alignItems: 'center', marginBottom: '1.5rem', gap: '0.8rem'}}>
-                <div style={{color: '#ffc107', fontSize: '1.3rem'}}>
-                  ★★★★★
-                </div>
-                <span style={{color: '#555', fontSize: '1rem', fontWeight: '500'}}>{t('ratedOutOf')} (23 {currentLanguage === 'fr' ? 'avis' : currentLanguage === 'en' ? 'reviews' : 'ביקורות'})</span>
-              </div>
-
-              <div style={{fontSize: '2.3rem', fontWeight: '700', color: '#dc3545', marginBottom: '2rem', maxWidth: '100%'}}>
-                <span style={{display: 'inline-block', verticalAlign: 'middle'}}>
-                  {currentVariant.price} ₪
-                </span>
-                {currentVariant.originalPrice && (
-                  <span style={{textDecoration: 'line-through', color: '#999', fontSize: '1.6rem', marginRight: '1rem', display: 'inline-block', verticalAlign: 'middle'}}>
-                    {currentVariant.originalPrice} ₪
-                  </span>
-                )}
-              </div>
-
-              <p style={{fontSize: '1.15rem', color: '#333', lineHeight: '1.8', marginBottom: '2rem', fontWeight: '500'}}>
-                {product.description}
-              </p>
-
-              {/* VARIANT SELECTION */}
-              <div style={{marginBottom: '2rem'}}>
-                <h3 style={{fontSize: '1.3rem', fontWeight: '700', marginBottom: '1.2rem', color: '#222', letterSpacing: '-0.3px'}}>
-                  {currentLanguage === 'fr' ? 'Choisissez la taille et la reliure:' :
-                   currentLanguage === 'en' ? 'Choose size and binding:' :
-                   currentLanguage === 'es' ? 'Elija tamaño y encuadernación:' :
-                   currentLanguage === 'ru' ? 'Выберите размер и переплет:' :
-                   'בחר גודל וכריכה:'}
-                </h3>
-                <div style={{display: 'grid', gap: '0.8rem'}}>
-                  {variants.map((variant) => (
-                    <label 
-                      key={variant.id}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '1rem',
-                        padding: '1rem',
-                        border: selectedVariant === variant.id ? '2px solid #dc3545' : '1px solid #ddd',
-                        borderRadius: '8px',
-                        cursor: variant.inStock ? 'pointer' : 'not-allowed',
-                        opacity: variant.inStock ? 1 : 0.6,
-                        background: selectedVariant === variant.id ? '#fef2f2' : 'white'
-                      }}
-                    >
-                      <input 
-                        type="radio" 
-                        name="variant"
-                        value={variant.id}
-                        checked={selectedVariant === variant.id}
-                        onChange={(e) => setSelectedVariant(e.target.value)}
-                        disabled={!variant.inStock}
-                        style={{margin: 0}}
-                      />
-                      <div style={{flex: 1}}>
-                        <div style={{fontWeight: '700', fontSize: '1.1rem', color: '#222', marginBottom: '0.3rem'}}>
-                          {variant.format} {variant.binding} - {variant.size}
-                        </div>
-                        <div style={{fontSize: '1rem', color: '#555', lineHeight: '1.5', marginBottom: '0.3rem'}}>
-                          {variant.dimensions} • {variant.volumes === 1 ?
-                            (currentLanguage === 'fr' ? '1 volume' : currentLanguage === 'en' ? '1 volume' : 'חלק אחד') :
-                            `${variant.volumes} ${currentLanguage === 'fr' ? 'volumes' : currentLanguage === 'en' ? 'volumes' : 'כרכים'}`}
-                        </div>
-                        <div style={{fontSize: '0.95rem', fontWeight: '600', color: variant.inStock ? '#28a745' : '#dc3545'}}>
-                          {variant.inStock ?
-                            (currentLanguage === 'fr' ? 'En stock' : currentLanguage === 'en' ? 'In stock' : 'במלאי') :
-                            (currentLanguage === 'fr' ? 'Rupture de stock' : currentLanguage === 'en' ? 'Out of stock' : 'אזל מהמלאי')}
-                        </div>
-                      </div>
-                      <div style={{fontSize: '1.2rem', fontWeight: 'bold', color: '#dc3545', minWidth: '80px', textAlign: 'left', flexShrink: 0}}>
-                        <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap'}}>
-                          <span>{variant.price}₪</span>
-                          {variant.originalPrice && (
-                            <span style={{textDecoration: 'line-through', color: '#999', fontSize: '0.9rem'}}>
-                              {variant.originalPrice}₪
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </label>
+              {/* Rating */}
+              <div className="flex items-center gap-2 mb-4">
+                <div className="flex">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star
+                      key={i}
+                      size={16}
+                      className="text-keren-gold fill-keren-gold"
+                    />
                   ))}
                 </div>
+                <span className="text-sm text-gray-500">
+                  5.0 (23 {txt.reviews})
+                </span>
               </div>
 
-              {/* QUANTITY AND ADD TO CART */}
-              <div style={{marginBottom: '2rem'}}>
-                <div style={{display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem'}}>
-                  <label style={{fontWeight: '700', color: '#222', fontSize: '1.05rem'}}>
-                    {currentLanguage === 'fr' ? 'Quantité:' : currentLanguage === 'en' ? 'Quantity:' : currentLanguage === 'es' ? 'Cantidad:' : currentLanguage === 'ru' ? 'Количество:' : 'כמות:'}
-                  </label>
-                  <div style={{display: 'flex', alignItems: 'center', border: '1px solid #ddd', borderRadius: '5px'}}>
-                    <button 
-                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      style={{padding: '0.5rem 0.8rem', border: 'none', background: '#f8f9fa', cursor: 'pointer'}}
-                    >
-                      -
-                    </button>
-                    <input 
-                      type="number" 
-                      value={quantity} 
-                      onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                      style={{width: '60px', padding: '0.5rem', border: 'none', textAlign: 'center'}}
-                      min="1"
-                    />
-                    <button 
-                      onClick={() => setQuantity(quantity + 1)}
-                      style={{padding: '0.5rem 0.8rem', border: 'none', background: '#f8f9fa', cursor: 'pointer'}}
-                    >
-                      +
-                    </button>
+              {/* Price */}
+              <div className="text-3xl font-bold text-keren-orange mb-6">
+                {currentVariant
+                  ? formatPrice(currentVariant.price)
+                  : formatPrice(0)}
+              </div>
+
+              {/* Description */}
+              <p className="text-gray-600 leading-relaxed mb-6">
+                {currentLanguage === "en" && product.descriptionEnglish
+                  ? product.descriptionEnglish
+                  : product.description}
+              </p>
+
+              {/* Trust badges */}
+              <div className="flex flex-wrap gap-4 mb-6 text-sm text-gray-500">
+                <span className="flex items-center gap-1">
+                  <Truck size={14} className="text-keren-blue" />
+                  {txt.freeShipping}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Shield size={14} className="text-keren-blue" />
+                  {txt.securePayment}
+                </span>
+                <span className="flex items-center gap-1">
+                  <RotateCcw size={14} className="text-keren-blue" />
+                  {txt.easyReturns}
+                </span>
+              </div>
+
+              {/* ── Variant Selector ── */}
+              {variants.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-sm font-bold text-gray-700 mb-3">
+                    {txt.chooseVariant}
+                  </h3>
+                  <div className="space-y-2 max-h-[280px] overflow-y-auto">
+                    {variants.map((variant) => (
+                      <label
+                        key={variant.id}
+                        className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all ${
+                          (selectedVariant || variants[0]?.id) === variant.id
+                            ? "border-keren-orange bg-orange-50/50"
+                            : "border-gray-200 hover:border-gray-300"
+                        } ${!variant.inStock ? "opacity-50 cursor-not-allowed" : ""}`}
+                      >
+                        <input
+                          type="radio"
+                          name="variant"
+                          value={variant.id}
+                          checked={
+                            (selectedVariant || variants[0]?.id) === variant.id
+                          }
+                          onChange={(e) => setSelectedVariant(e.target.value)}
+                          disabled={!variant.inStock}
+                          className="sr-only"
+                        />
+                        <div
+                          className={`w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${
+                            (selectedVariant || variants[0]?.id) === variant.id
+                              ? "border-keren-orange bg-keren-orange"
+                              : "border-gray-300"
+                          }`}
+                        >
+                          {(selectedVariant || variants[0]?.id) ===
+                            variant.id && (
+                            <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-semibold text-sm text-gray-800">
+                            {variant.format} — {variant.size}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {variant.dimensions} •{" "}
+                            {variant.volumes === 1
+                              ? txt.volume
+                              : `${variant.volumes} ${txt.volumes}`}
+                          </div>
+                        </div>
+                        <div className="text-end flex-shrink-0">
+                          <div className="font-bold text-keren-orange">
+                            {formatPrice(variant.price)}
+                          </div>
+                          <div
+                            className={`text-xs ${variant.inStock ? "text-green-600" : "text-red-500"}`}
+                          >
+                            {variant.inStock ? txt.inStock : txt.outOfStock}
+                          </div>
+                        </div>
+                      </label>
+                    ))}
                   </div>
                 </div>
+              )}
 
-                <button 
-                  onClick={() => {
-                    if (currentVariant.inStock) {
-                      addItem({
-                        productId: product.id,
-                        variantId: currentVariant.id,
-                        name: getInterfaceDisplayTitle(product, currentLanguage),
-                        nameEnglish: product.nameEnglish || product.name,
-                        image: product.images?.[0] || '',
-                        price: currentVariant.price,
-                        quantity: quantity,
-                        variant: {
-                          format: currentVariant.format,
-                          binding: currentVariant.binding,
-                          size: currentVariant.size
-                        }
-                      });
-                      toast({
-                        title: currentLanguage === 'fr' ? "Ajouté au panier !" : currentLanguage === 'en' ? "Added to cart!" : "נוסף לסל הקניות!",
-                        description: `${getInterfaceDisplayTitle(product, currentLanguage)} ${currentLanguage === 'fr' ? 'ajouté avec succès au panier' : currentLanguage === 'en' ? 'successfully added to cart' : 'נוסף בהצלחה לסל'}`,
-                      });
-                    }
-                  }}
-                  style={{
-                    background: currentVariant.inStock ? '#dc3545' : '#999',
-                    color: 'white',
-                    border: 'none',
-                    padding: '1rem 2rem',
-                    borderRadius: '8px',
-                    cursor: currentVariant.inStock ? 'pointer' : 'not-allowed',
-                    width: '100%',
-                    fontSize: '1.2rem',
-                    fontWeight: 'bold'
-                  }}
-                  disabled={!currentVariant.inStock}
+              {/* ── Quantity + Add to Cart ── */}
+              <div className="flex gap-3 mb-8">
+                {/* Quantity stepper */}
+                <div className="flex items-center border border-gray-200 rounded-lg">
+                  <button
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="px-3 py-3 text-gray-500 hover:text-gray-700 transition-colors"
+                  >
+                    <Minus size={16} />
+                  </button>
+                  <span className="w-10 text-center font-semibold text-gray-800">
+                    {quantity}
+                  </span>
+                  <button
+                    onClick={() => setQuantity(quantity + 1)}
+                    className="px-3 py-3 text-gray-500 hover:text-gray-700 transition-colors"
+                  >
+                    <Plus size={16} />
+                  </button>
+                </div>
+                {/* Add to cart button */}
+                <button
+                  onClick={handleAddToCart}
+                  disabled={!currentVariant?.inStock}
+                  className="btn-primary flex-1 py-3 text-base"
                 >
-                  {currentVariant.inStock ? 
-                    (currentLanguage === 'fr' ? `Ajouter au panier - ${(currentVariant.price * quantity).toFixed(2)} ₪` :
-                     currentLanguage === 'en' ? `Add to cart - ${(currentVariant.price * quantity).toFixed(2)} ₪` :
-                     `הוספה לסל - ${(currentVariant.price * quantity).toFixed(2)} ₪`) : 
-                    (currentLanguage === 'fr' ? 'Rupture de stock' : currentLanguage === 'en' ? 'Out of stock' : 'אזל מהמלאי')
-                  }
+                  <ShoppingBag size={18} />
+                  {currentVariant?.inStock
+                    ? `${txt.addToCart} — ${formatPrice((currentVariant?.price || 0) * quantity)}`
+                    : txt.outOfStock}
                 </button>
               </div>
 
-              {/* PRODUCT FEATURES */}
-              <div style={{marginBottom: '2rem'}}>
-                <h3 style={{fontSize: '1.4rem', fontWeight: '700', marginBottom: '1.5rem', color: '#222', letterSpacing: '-0.3px'}}>
-                  {currentLanguage === 'fr' ? 'Caractéristiques spéciales:' :
-                   currentLanguage === 'en' ? 'Special features:' :
-                   currentLanguage === 'es' ? 'Características especiales:' :
-                   currentLanguage === 'ru' ? 'Особые характеристики:' :
-                   'מאפיינים מיוחדים:'}
-                </h3>
-                <ul style={{listStyle: 'none', padding: 0}}>
-                  {(product.features || []).map((feature, index) => (
-                    <li key={index} style={{marginBottom: '0.8rem', paddingRight: '2rem', position: 'relative', fontSize: '1.05rem', color: '#333', lineHeight: '1.6', fontWeight: '500'}}>
-                      <span style={{position: 'absolute', right: 0, top: '0.2rem', color: '#dc3545', fontWeight: 'bold', fontSize: '1.3rem'}}>✓</span>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              {/* ── Features ── */}
+              {product.features && product.features.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-sm font-bold text-gray-700 mb-3">
+                    {txt.features}
+                  </h3>
+                  <ul className="space-y-2">
+                    {product.features.map((feature, i) => (
+                      <li
+                        key={i}
+                        className="flex items-start gap-2 text-sm text-gray-600"
+                      >
+                        <Check
+                          size={16}
+                          className="text-keren-orange flex-shrink-0 mt-0.5"
+                        />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
-              {/* PRODUCT DETAILS */}
-              <div style={{background: '#f8f9fa', padding: '2rem', borderRadius: '8px', border: '1px solid #e5e7eb'}}>
-                <h3 style={{fontSize: '1.4rem', fontWeight: '700', marginBottom: '1.5rem', color: '#222', letterSpacing: '-0.3px'}}>
-                  {currentLanguage === 'fr' ? 'Détails du produit:' :
-                   currentLanguage === 'en' ? 'Product details:' :
-                   currentLanguage === 'es' ? 'Detalles del producto:' :
-                   currentLanguage === 'ru' ? 'Детали продукта:' :
-                   'פרטי המוצר:'}
+              {/* ── Product Details Table ── */}
+              <div className="bg-gray-50 rounded-xl p-5">
+                <h3 className="text-sm font-bold text-gray-700 mb-3">
+                  {txt.details}
                 </h3>
-                <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.2rem', fontSize: '1.02rem', lineHeight: '1.8', color: '#333'}}>
-                  <div><strong style={{fontWeight: '600', color: '#222'}}>{currentLanguage === 'fr' ? 'Langue:' : currentLanguage === 'en' ? 'Language:' : currentLanguage === 'es' ? 'Idioma:' : currentLanguage === 'ru' ? 'Язык:' : 'שפה:'}</strong> {product.language}</div>
-                  <div><strong style={{fontWeight: '600', color: '#222'}}>{currentLanguage === 'fr' ? 'Éditeur:' : currentLanguage === 'en' ? 'Publisher:' : currentLanguage === 'es' ? 'Editor:' : currentLanguage === 'ru' ? 'Издатель:' : 'הוצאה:'}</strong> {product.publisher}</div>
-                  {product.pages && <div><strong style={{fontWeight: '600', color: '#222'}}>{currentLanguage === 'fr' ? 'Pages:' : currentLanguage === 'en' ? 'Pages:' : currentLanguage === 'es' ? 'Páginas:' : currentLanguage === 'ru' ? 'Страницы:' : 'עמודים:'}</strong> {product.pages}</div>}
-                  {product.isbn && <div><strong style={{fontWeight: '600', color: '#222'}}>ISBN:</strong> {product.isbn}</div>}
+                <div className="grid grid-cols-2 gap-y-2 text-sm">
+                  {product.author && (
+                    <>
+                      <span className="text-gray-500">{txt.author}</span>
+                      <span className="font-medium text-gray-700">
+                        {product.author}
+                      </span>
+                    </>
+                  )}
+                  <span className="text-gray-500">{txt.language}</span>
+                  <span className="font-medium text-gray-700">
+                    {product.language}
+                  </span>
+                  <span className="text-gray-500">{txt.publisher}</span>
+                  <span className="font-medium text-gray-700">
+                    {product.publisher}
+                  </span>
+                  {product.pages && (
+                    <>
+                      <span className="text-gray-500">{txt.pages}</span>
+                      <span className="font-medium text-gray-700">
+                        {product.pages.toLocaleString()}
+                      </span>
+                    </>
+                  )}
+                  {product.isbn && (
+                    <>
+                      <span className="text-gray-500">ISBN</span>
+                      <span className="font-medium text-gray-700">
+                        {product.isbn}
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* RELATED PRODUCTS */}
-      <section style={{background: '#f8f9fa', padding: '3rem 0'}}>
-        <div className="container" style={{maxWidth: '1200px', margin: '0 auto', padding: '0 2rem'}}>
-          <h2 style={{fontSize: '2rem', fontWeight: 'bold', color: '#333', marginBottom: '2rem', textAlign: 'center'}}>
-            {currentLanguage === 'fr' ? 'Produits similaires' :
-             currentLanguage === 'en' ? 'Similar products' :
-             currentLanguage === 'es' ? 'Productos similares' :
-             currentLanguage === 'ru' ? 'Похожие продукты' :
-             'מוצרים דומים'}
-          </h2>
-          <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem'}}>
-            {Object.values(realBreslovProducts).filter(p => p.id !== product.id).slice(0, 3).map((relatedProduct) => (
-              <div key={relatedProduct.id} style={{background: 'white', borderRadius: '10px', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.1)'}}>
-                <img 
-                  src={(relatedProduct.images && relatedProduct.images[0] || '').replace('@assets/', '/attached_assets/')} 
-                  alt={relatedProduct.name}
-                  style={{width: '100%', height: '200px', objectFit: 'cover'}}
-                />
-                <div style={{padding: '1.5rem'}}>
-                  <h3 style={{fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#333'}}>
-                    {getInterfaceDisplayTitle(relatedProduct, currentLanguage)}
-                  </h3>
-                  <div style={{fontSize: '1.1rem', fontWeight: 'bold', color: '#dc3545', marginBottom: '1rem'}}>
-                    {(relatedProduct.variants && relatedProduct.variants[0] || {price: 0}).price} ₪
-                  </div>
-                  <a href={`/product/${relatedProduct.id}`} style={{textDecoration: 'none'}}>
-                    <button style={{background: '#dc3545', color: 'white', border: 'none', padding: '0.8rem 1rem', borderRadius: '5px', cursor: 'pointer', width: '100%', fontWeight: 'bold'}}>
-                      {t('viewProduct')}
-                    </button>
-                  </a>
-                </div>
+        {/* ── Related Products ── */}
+        {relatedProducts.length > 0 && (
+          <section className="bg-gray-50 py-12">
+            <div className="container-haesh">
+              <h2 className="text-2xl font-bold text-keren-blue text-center mb-8">
+                {txt.related}
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+                {relatedProducts.map((rp) => {
+                  const rpImage = getFirstProductImage(rp.images);
+                  const rpTitle = getInterfaceDisplayTitle(rp, currentLanguage);
+                  const rpMinPrice = rp.variants?.length
+                    ? Math.min(...rp.variants.map((v) => v.price))
+                    : 0;
+
+                  return (
+                    <Link
+                      key={rp.id}
+                      href={`/product/${rp.id}`}
+                      className="no-underline"
+                    >
+                      <div className="product-card group">
+                        <div className="relative overflow-hidden bg-gray-50">
+                          {rpImage ? (
+                            <img
+                              src={rpImage}
+                              alt={rpTitle}
+                              className="product-image"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className="w-full aspect-[3/4] flex items-center justify-center">
+                              <span className="text-4xl opacity-20">📖</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="p-4">
+                          <h3 className="text-sm font-semibold text-gray-800 mb-1 line-clamp-2 group-hover:text-keren-blue transition-colors">
+                            {rpTitle}
+                          </h3>
+                          <div className="flex items-center gap-1 mb-2">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <Star
+                                key={i}
+                                size={12}
+                                className="text-keren-gold fill-keren-gold"
+                              />
+                            ))}
+                          </div>
+                          <p className="text-lg font-bold text-keren-orange">
+                            {formatPrice(rpMinPrice)}
+                          </p>
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
+            </div>
+          </section>
+        )}
+      </main>
+
+      <Footer />
     </div>
   );
 }

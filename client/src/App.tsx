@@ -1,20 +1,36 @@
-import { Switch, Route } from "wouter";
-import { queryClient } from "./lib/queryClient";
-import { QueryClientProvider } from "@tanstack/react-query";
+import { AmbientMusic } from "@/components/AmbientMusic";
+import { HilloulaBuilder, TestimonialsBuilder } from "@/components/BuilderPage";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { InstallPrompt } from "@/components/InstallPrompt";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { LanguageProvider } from "@/contexts/LanguageContext";
 import { CartProvider } from "@/contexts/CartContext";
+import { CurrencyProvider } from "@/contexts/CurrencyContext";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import { InstallPrompt } from "@/components/InstallPrompt";
-import { AmbientMusic } from "@/components/AmbientMusic";
-import Home from "@/pages/home";
-import Store from "@/pages/store";
 import About from "@/pages/about";
-import Magazine from "@/pages/magazine";
-import Join from "@/pages/join";
-import Contact from "@/pages/contact";
+import BreslovWisdom from "@/pages/breslovWisdom";
+import Chat from "@/pages/chat";
 import Checkout from "@/pages/checkout";
+import Contact from "@/pages/contact";
+import Donate from "@/pages/donate";
+import Downloads from "@/pages/downloads";
+import HaeshHype from "@/pages/haesh-hype";
+import Home from "@/pages/home";
+import Join from "@/pages/join";
+import KerenStyle from "@/pages/keren-style";
+import Lottery from "@/pages/lottery";
+import LotteryAdmin from "@/pages/lottery-admin";
+import Magazine from "@/pages/magazine";
+import NotFound from "@/pages/not-found";
+import Product from "@/pages/product";
+import Store from "@/pages/store";
+import Subscription from "@/pages/subscription";
+import SubscriptionManagement from "@/pages/subscription-management";
+import YaakovDashboard from "@/pages/yaaakov";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { Route, Switch } from "wouter";
+import { queryClient } from "./lib/queryClient";
 
 // Simple checkout success component
 const CheckoutSuccess = () => {
@@ -29,8 +45,8 @@ const CheckoutSuccess = () => {
           <p className="text-gray-600 dark:text-gray-300 mb-6">
             ההזמנה שלך התקבלה ותקבל מייל אישור בקרוב
           </p>
-          <a 
-            href="/" 
+          <a
+            href="/"
             className="inline-block bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition-colors"
           >
             חזרה לעמוד הבית
@@ -40,22 +56,6 @@ const CheckoutSuccess = () => {
     </div>
   );
 };
-import Downloads from "@/pages/downloads";
-import Product from "@/pages/product";
-import BreslovWisdom from "@/pages/breslovWisdom";
-import KerenStyle from "@/pages/keren-style";
-import HaeshHype from "@/pages/haesh-hype";
-import Subscription from "@/pages/subscription";
-import SubscriptionManagement from "@/pages/subscription-management";
-import YaakovDashboard from "@/pages/yaaakov";
-import Chat from "@/pages/chat";
-import Lottery from "@/pages/lottery";
-import LotteryAdmin from "@/pages/lottery-admin";
-import Hilloula from "@/pages/hilloula-2024";
-import Testimonials from "@/pages/testimonials";
-import BreslovVideos from "@/pages/breslov-videos";
-import NotFound from "@/pages/not-found";
-import { HilloulaBuilder, TestimonialsBuilder } from "@/components/BuilderPage";
 
 function Router() {
   return (
@@ -69,6 +69,7 @@ function Router() {
       <Route path="/checkout" component={Checkout} />
       <Route path="/checkout/success" component={() => <CheckoutSuccess />} />
       <Route path="/downloads" component={Downloads} />
+      <Route path="/donate" component={Donate} />
       <Route path="/subscription" component={Subscription} />
       <Route path="/subscription/manage" component={SubscriptionManagement} />
       <Route path="/product/:id" component={Product} />
@@ -92,12 +93,16 @@ function App() {
       <TooltipProvider>
         <ThemeProvider>
           <LanguageProvider>
-            <CartProvider>
-              <Toaster />
-              <InstallPrompt />
-              <AmbientMusic />
-              <Router />
-            </CartProvider>
+            <CurrencyProvider>
+              <CartProvider>
+                <Toaster />
+                <InstallPrompt />
+                <AmbientMusic />
+                <ErrorBoundary>
+                  <Router />
+                </ErrorBoundary>
+              </CartProvider>
+            </CurrencyProvider>
           </LanguageProvider>
         </ThemeProvider>
       </TooltipProvider>

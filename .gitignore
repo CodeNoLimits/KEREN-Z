@@ -19,3 +19,6 @@ attached_assets/*.pdf
 .env
 .env.local
 .env.*.local
+
+# Méthodologie (optionnel, peut être commit si utile)
+# .methodology/

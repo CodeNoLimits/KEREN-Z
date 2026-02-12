@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { useLanguage } from '../contexts/LanguageContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Heart, CreditCard, Smartphone, Gift } from 'lucide-react';
-import { PayPalButton } from '../components/PayPalButton';
+import { Footer } from "@/components/Footer";
+import { Header } from "@/components/Header";
+import { CheckCircle, CreditCard, Gift, Heart, Smartphone } from "lucide-react";
+import { useState } from "react";
+import { useLanguage } from "../contexts/LanguageContext";
+import { useSEO } from "../hooks/useSEO";
 
 interface DonationAmount {
   value: number;
@@ -12,313 +12,346 @@ interface DonationAmount {
 }
 
 export default function DonatePage() {
-  const { currentLanguage } = useLanguage();
+  const { currentLanguage, setLanguage } = useLanguage();
+  useSEO({
+    title:
+      currentLanguage === "he"
+        ? "תרומה - קרן רבי ישראל | האש שלי"
+        : "Donate - Keren Rabbi Israel | Haesh Sheli",
+    description:
+      currentLanguage === "he"
+        ? "תרמו לקרן רבי ישראל להפצת ספרי רבי נחמן מברסלב בעולם"
+        : "Donate to Keren Rabbi Israel for spreading Rabbi Nachman books worldwide",
+  });
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
-  const [customAmount, setCustomAmount] = useState('');
+  const [customAmount, setCustomAmount] = useState("");
   const [isRecurring, setIsRecurring] = useState(false);
-  const [donorName, setDonorName] = useState('');
-  const [donorEmail, setDonorEmail] = useState('');
-  const [donorMessage, setDonorMessage] = useState('');
+  const [donorName, setDonorName] = useState("");
+  const [donorEmail, setDonorEmail] = useState("");
+  const [donorMessage, setDonorMessage] = useState("");
+  const isRTL = currentLanguage === "he";
 
   const donationAmounts: DonationAmount[] = [
-    { value: 50, label: '50₪' },
-    { value: 100, label: '100₪' },
-    { value: 200, label: '200₪', popular: true },
-    { value: 500, label: '500₪' },
-    { value: 1000, label: '1000₪' },
-    { value: 2000, label: '2000₪' }
+    { value: 50, label: "50₪" },
+    { value: 100, label: "100₪" },
+    { value: 200, label: "200₪", popular: true },
+    { value: 500, label: "500₪" },
+    { value: 1000, label: "1000₪" },
+    { value: 2000, label: "2000₪" },
   ];
 
   const getText = (key: string) => {
-    const texts = {
+    const texts: Record<string, Record<string, string>> = {
       title: {
-        he: 'תרומה לקרן הרב ישראל',
-        en: 'Donation to Rabbi Yisrael Foundation',
-        fr: 'Don à la Fondation Rabbi Yisrael'
+        he: "תרומה לקרן הרב ישראל",
+        en: "Donation to Rabbi Yisrael Foundation",
+        fr: "Don à la Fondation Rabbi Yisrael",
       },
       subtitle: {
-        he: 'תמכו במשימה שלנו להפיץ את תורתו של רבי נחמן מברסלב',
-        en: 'Support our mission to spread Rabbi Nachman\'s teachings',
-        fr: 'Soutenez notre mission de diffuser les enseignements de Rabbi Nachman'
+        he: "תמכו במשימה שלנו להפיץ את תורתו של רבי נחמן מברסלב",
+        en: "Support our mission to spread Rabbi Nachman's teachings",
+        fr: "Soutenez notre mission de diffuser les enseignements de Rabbi Nachman",
       },
       amountLabel: {
-        he: 'סכום התרומה',
-        en: 'Donation Amount',
-        fr: 'Montant du don'
+        he: "סכום התרומה",
+        en: "Donation Amount",
+        fr: "Montant du don",
       },
       customAmount: {
-        he: 'סכום אחר',
-        en: 'Custom Amount',
-        fr: 'Montant personnalisé'
+        he: "סכום אחר",
+        en: "Custom Amount",
+        fr: "Montant personnalisé",
       },
       recurring: {
-        he: 'תרומה חודשית',
-        en: 'Monthly Donation',
-        fr: 'Don mensuel'
+        he: "תרומה חודשית",
+        en: "Monthly Donation",
+        fr: "Don mensuel",
       },
       donorInfo: {
-        he: 'פרטי התורם',
-        en: 'Donor Information',
-        fr: 'Informations du donateur'
+        he: "פרטי התורם",
+        en: "Donor Information",
+        fr: "Informations du donateur",
       },
-      name: {
-        he: 'שם מלא',
-        en: 'Full Name',
-        fr: 'Nom complet'
-      },
-      email: {
-        he: 'אימייל',
-        en: 'Email',
-        fr: 'Email'
-      },
+      name: { he: "שם מלא", en: "Full Name", fr: "Nom complet" },
+      email: { he: "אימייל", en: "Email", fr: "Email" },
       message: {
-        he: 'הודעה (אופציונלי)',
-        en: 'Message (Optional)',
-        fr: 'Message (Optionnel)'
+        he: "הודעה (אופציונלי)",
+        en: "Message (Optional)",
+        fr: "Message (Optionnel)",
       },
       donateButton: {
-        he: 'תרום עכשיו',
-        en: 'Donate Now',
-        fr: 'Faire un don maintenant'
+        he: "תרום עכשיו",
+        en: "Donate Now",
+        fr: "Faire un don maintenant",
       },
       paymentMethods: {
-        he: 'אמצעי תשלום',
-        en: 'Payment Methods',
-        fr: 'Moyens de paiement'
-      }
+        he: "אמצעי תשלום",
+        en: "Payment Methods",
+        fr: "Moyens de paiement",
+      },
+      popular: { he: "פופולרי", en: "Popular", fr: "Populaire" },
+      creditCard: {
+        he: "כרטיס אשראי",
+        en: "Credit Card",
+        fr: "Carte de crédit",
+      },
+      paybox: { he: "פייבוקס", en: "PayBox", fr: "PayBox" },
+      phonePayment: {
+        he: "תשלום בטלפון",
+        en: "Phone Payment",
+        fr: "Paiement par téléphone",
+      },
+      bankTransfer: {
+        he: "העברה בנקאית",
+        en: "Bank Transfer",
+        fr: "Virement bancaire",
+      },
+      directTransfer: {
+        he: "העברה ישירה",
+        en: "Direct Transfer",
+        fr: "Transfert direct",
+      },
+      impactTitle: {
+        he: "השפעת התרומה שלכם",
+        en: "Impact of Your Donation",
+        fr: "Impact de votre don",
+      },
+      impact1: {
+        he: "תמיכה בהדפסת ספרים חדשים",
+        en: "Support printing new books",
+        fr: "Soutien à l'impression de nouveaux livres",
+      },
+      impact2: {
+        he: "הפצת תורת ברסלב בעולם",
+        en: "Spreading Breslov teachings worldwide",
+        fr: "Diffusion des enseignements de Breslov dans le monde",
+      },
+      impact3: {
+        he: "תמיכה בפעילות חינוכית",
+        en: "Supporting educational activities",
+        fr: "Soutien aux activités éducatives",
+      },
     };
-    return texts[key as keyof typeof texts][currentLanguage as keyof typeof texts[keyof typeof texts]] || texts[key as keyof typeof texts].he;
+    return texts[key]?.[currentLanguage] || texts[key]?.he || key;
   };
 
   const handleDonate = () => {
     const amount = selectedAmount || parseFloat(customAmount);
     if (!amount || amount <= 0) {
-      alert(currentLanguage === 'he' ? 'אנא בחר סכום תרומה' : 'Please select a donation amount');
+      alert(
+        currentLanguage === "he"
+          ? "אנא בחר סכום תרומה"
+          : "Please select a donation amount",
+      );
       return;
     }
-
-    // Le PayPalButton gère maintenant le paiement
-    console.log('Donation prepared:', {
+    // Payment processing placeholder
+    console.log("Donation:", {
       amount,
       isRecurring,
       donorName,
       donorEmail,
-      donorMessage
+      donorMessage,
     });
-  };
-
-  const handlePayPalSuccess = (transactionId: string) => {
-    alert(`${getText('donateButton')} הצליח! תודה רבה! Transaction ID: ${transactionId}`);
-    // Ici on pourrait envoyer un email de confirmation, sauvegarder en base, etc.
-  };
-
-  const handlePayPalError = (error: string) => {
-    alert(`שגיאה בתשלום: ${error}`);
+    alert(
+      currentLanguage === "he"
+        ? "תודה רבה על תרומתכם! 🙏"
+        : "Thank you for your donation! 🙏",
+    );
   };
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-orange-50 to-red-50 ${currentLanguage === 'he' ? 'rtl' : 'ltr'}`}>
-      <div className="max-w-4xl mx-auto px-4 py-12">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-orange-100 rounded-full mb-4">
-            <Heart className="h-8 w-8 text-orange-600" />
+    <div dir={isRTL ? "rtl" : "ltr"}>
+      <Header
+        currentLanguage={currentLanguage}
+        onLanguageChange={setLanguage}
+      />
+
+      <main className="bg-white">
+        {/* ── Hero ── */}
+        <section className="bg-keren-blue text-white py-16 lg:py-20">
+          <div className="container-haesh text-center max-w-2xl mx-auto">
+            <div className="w-14 h-14 mx-auto bg-white/10 rounded-full flex items-center justify-center mb-4">
+              <Heart className="w-7 h-7" />
+            </div>
+            <h1 className="text-3xl lg:text-4xl font-bold mb-3">
+              {getText("title")}
+            </h1>
+            <p className="text-blue-200 text-sm">{getText("subtitle")}</p>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            {getText('title')}
-          </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            {getText('subtitle')}
-          </p>
-        </div>
+        </section>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Donation Form */}
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-6">
-              {getText('amountLabel')}
-            </h2>
+        {/* ── Donation Content ── */}
+        <section className="py-10">
+          <div className="container-haesh max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* ── Donation Form ── */}
+              <div className="bg-gray-50 rounded-xl p-6">
+                <h2 className="text-lg font-bold text-gray-800 mb-4">
+                  {getText("amountLabel")}
+                </h2>
 
-            {/* Amount Selection */}
-            <div className="grid grid-cols-2 gap-3 mb-6">
-              {donationAmounts.map((amount) => (
-                <Button
-                  key={amount.value}
-                  variant={selectedAmount === amount.value ? "default" : "outline"}
-                  onClick={() => {
-                    setSelectedAmount(amount.value);
-                    setCustomAmount('');
-                  }}
-                  className={`h-12 ${amount.popular ? 'ring-2 ring-orange-500' : ''}`}
-                >
-                  <span className="font-semibold">{amount.label}</span>
-                  {amount.popular && (
-                    <span className="ml-2 text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded">
-                      {currentLanguage === 'he' ? 'פופולרי' : 'Popular'}
+                {/* Amount grid */}
+                <div className="grid grid-cols-2 gap-2 mb-5">
+                  {donationAmounts.map((amount) => (
+                    <button
+                      key={amount.value}
+                      onClick={() => {
+                        setSelectedAmount(amount.value);
+                        setCustomAmount("");
+                      }}
+                      className={`relative h-11 rounded-lg text-sm font-semibold transition-all border ${
+                        selectedAmount === amount.value
+                          ? "bg-keren-blue text-white border-keren-blue"
+                          : "bg-white text-gray-700 border-gray-200 hover:border-keren-blue"
+                      } ${amount.popular ? "ring-2 ring-keren-orange ring-offset-1" : ""}`}
+                    >
+                      {amount.label}
+                      {amount.popular && (
+                        <span className="absolute -top-2 right-2 text-[10px] bg-keren-orange text-white px-1.5 py-0.5 rounded">
+                          {getText("popular")}
+                        </span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Custom amount */}
+                <div className="mb-4">
+                  <label className="block text-xs font-medium text-gray-500 mb-1">
+                    {getText("customAmount")}
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="₪"
+                    value={customAmount}
+                    onChange={(e) => {
+                      setCustomAmount(e.target.value);
+                      setSelectedAmount(null);
+                    }}
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-keren-blue focus:border-keren-blue transition-all"
+                  />
+                </div>
+
+                {/* Recurring */}
+                <div className="mb-5">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={isRecurring}
+                      onChange={(e) => setIsRecurring(e.target.checked)}
+                      className="w-4 h-4 rounded border-gray-300 text-keren-blue focus:ring-keren-blue"
+                    />
+                    <span className="text-sm font-medium text-gray-700">
+                      {getText("recurring")}
                     </span>
-                  )}
-                </Button>
-              ))}
-            </div>
+                  </label>
+                </div>
 
-            {/* Custom Amount */}
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {getText('customAmount')}
-              </label>
-              <Input
-                type="number"
-                placeholder="₪"
-                value={customAmount}
-                onChange={(e) => {
-                  setCustomAmount(e.target.value);
-                  setSelectedAmount(null);
-                }}
-                className="text-lg"
-              />
-            </div>
+                {/* Donor info */}
+                <h3 className="text-sm font-bold text-gray-800 mb-3">
+                  {getText("donorInfo")}
+                </h3>
+                <div className="space-y-3 mb-5">
+                  <input
+                    placeholder={getText("name")}
+                    value={donorName}
+                    onChange={(e) => setDonorName(e.target.value)}
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-keren-blue focus:border-keren-blue transition-all"
+                  />
+                  <input
+                    type="email"
+                    placeholder={getText("email")}
+                    value={donorEmail}
+                    onChange={(e) => setDonorEmail(e.target.value)}
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-keren-blue focus:border-keren-blue transition-all"
+                  />
+                  <textarea
+                    placeholder={getText("message")}
+                    value={donorMessage}
+                    onChange={(e) => setDonorMessage(e.target.value)}
+                    rows={3}
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-keren-blue focus:border-keren-blue transition-all resize-none"
+                  />
+                </div>
 
-            {/* Recurring Donation */}
-            <div className="mb-6">
-              <label className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  checked={isRecurring}
-                  onChange={(e) => setIsRecurring(e.target.checked)}
-                  className="rounded border-gray-300 text-orange-600 focus:ring-orange-500"
-                />
-                <span className="text-sm font-medium text-gray-700">
-                  {getText('recurring')}
-                </span>
-              </label>
-            </div>
+                {/* PayPal Button */}
+                <button
+                  onClick={handleDonate}
+                  className="w-full bg-keren-orange hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors inline-flex items-center justify-center gap-2"
+                >
+                  <Heart className="w-5 h-5" />
+                  {getText("donateButton")}
+                </button>
+              </div>
 
-            {/* Donor Information */}
-            <div className="space-y-4 mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">
-                {getText('donorInfo')}
-              </h3>
-              
-              <Input
-                placeholder={getText('name')}
-                value={donorName}
-                onChange={(e) => setDonorName(e.target.value)}
-              />
-              
-              <Input
-                type="email"
-                placeholder={getText('email')}
-                value={donorEmail}
-                onChange={(e) => setDonorEmail(e.target.value)}
-              />
-              
-              <textarea
-                placeholder={getText('message')}
-                value={donorMessage}
-                onChange={(e) => setDonorMessage(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                rows={3}
-              />
-            </div>
-
-            {/* Donate Button */}
-            <PayPalButton
-              amount={selectedAmount || parseFloat(customAmount) || 0}
-              description={`${getText('title')} - ${donorName || 'Anonymous'}`}
-              donorName={donorName}
-              donorEmail={donorEmail}
-              isRecurring={isRecurring}
-              onSuccess={handlePayPalSuccess}
-              onError={handlePayPalError}
-            />
-          </div>
-
-          {/* Payment Methods & Info */}
-          <div className="space-y-6">
-            {/* Payment Methods */}
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                {getText('paymentMethods')}
-              </h3>
-              
-              <div className="space-y-4">
-                <div className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
-                  <CreditCard className="h-6 w-6 text-blue-600 mr-3" />
-                  <div>
-                    <div className="font-medium text-gray-900">
-                      {currentLanguage === 'he' ? 'כרטיס אשראי' : 'Credit Card'}
+              {/* ── Payment Methods & Impact ── */}
+              <div className="space-y-5">
+                {/* Payment methods */}
+                <div className="bg-gray-50 rounded-xl p-5">
+                  <h3 className="text-lg font-bold text-gray-800 mb-4">
+                    {getText("paymentMethods")}
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center p-3 bg-white rounded-lg border border-gray-100 hover:border-gray-200 transition-colors">
+                      <CreditCard className="h-5 w-5 text-keren-blue mr-3 flex-shrink-0" />
+                      <div>
+                        <div className="text-sm font-medium text-gray-800">
+                          {getText("creditCard")}
+                        </div>
+                        <div className="text-xs text-gray-400">
+                          Visa, Mastercard, American Express
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-sm text-gray-600">
-                      Visa, Mastercard, American Express
+                    <div className="flex items-center p-3 bg-white rounded-lg border border-gray-100 hover:border-gray-200 transition-colors">
+                      <Smartphone className="h-5 w-5 text-green-600 mr-3 flex-shrink-0" />
+                      <div>
+                        <div className="text-sm font-medium text-gray-800">
+                          {getText("paybox")}
+                        </div>
+                        <div className="text-xs text-gray-400">
+                          {getText("phonePayment")}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center p-3 bg-white rounded-lg border border-gray-100 hover:border-gray-200 transition-colors">
+                      <Gift className="h-5 w-5 text-purple-600 mr-3 flex-shrink-0" />
+                      <div>
+                        <div className="text-sm font-medium text-gray-800">
+                          {getText("bankTransfer")}
+                        </div>
+                        <div className="text-xs text-gray-400">
+                          {getText("directTransfer")}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-                
-                <div className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
-                  <Smartphone className="h-6 w-6 text-green-600 mr-3" />
-                  <div>
-                    <div className="font-medium text-gray-900">
-                      {currentLanguage === 'he' ? 'פייבוקס' : 'PayBox'}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      {currentLanguage === 'he' ? 'תשלום בטלפון' : 'Phone Payment'}
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
-                  <Gift className="h-6 w-6 text-purple-600 mr-3" />
-                  <div>
-                    <div className="font-medium text-gray-900">
-                      {currentLanguage === 'he' ? 'העברה בנקאית' : 'Bank Transfer'}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      {currentLanguage === 'he' ? 'העברה ישירה' : 'Direct Transfer'}
-                    </div>
+
+                {/* Impact box */}
+                <div className="bg-keren-blue rounded-xl p-5 text-white">
+                  <h3 className="text-lg font-bold mb-4">
+                    {getText("impactTitle")}
+                  </h3>
+                  <div className="space-y-3">
+                    {["impact1", "impact2", "impact3"].map((key) => (
+                      <div key={key} className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-blue-200 flex-shrink-0" />
+                        <span className="text-sm text-blue-100">
+                          {getText(key)}
+                        </span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
             </div>
-
-            {/* Impact Info */}
-            <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-lg shadow-lg p-6 text-white">
-              <h3 className="text-xl font-semibold mb-4">
-                {currentLanguage === 'he' ? 'השפעת התרומה שלכם' : 'Impact of Your Donation'}
-              </h3>
-              
-              <div className="space-y-3">
-                <div className="flex items-center">
-                  <div className="w-2 h-2 bg-white rounded-full mr-3"></div>
-                  <span className="text-sm">
-                    {currentLanguage === 'he' 
-                      ? 'תמיכה בהדפסת ספרים חדשים' 
-                      : 'Support printing new books'
-                    }
-                  </span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-2 h-2 bg-white rounded-full mr-3"></div>
-                  <span className="text-sm">
-                    {currentLanguage === 'he' 
-                      ? 'הפצת תורת ברסלב בעולם' 
-                      : 'Spreading Breslov teachings worldwide'
-                    }
-                  </span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-2 h-2 bg-white rounded-full mr-3"></div>
-                  <span className="text-sm">
-                    {currentLanguage === 'he' 
-                      ? 'תמיכה בפעילות חינוכית' 
-                      : 'Supporting educational activities'
-                    }
-                  </span>
-                </div>
-              </div>
-            </div>
           </div>
-        </div>
-      </div>
+        </section>
+      </main>
+
+      <Footer />
     </div>
   );
 }

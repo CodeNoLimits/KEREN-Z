@@ -1,0 +1,112 @@
+================================================================================
+TAILSCALE QUICK REFERENCE - DreamNova Cluster Mesh Network
+================================================================================
+
+INSTALLATION STATUS:
+  ✓ Tailscale CLI: /opt/homebrew/bin/tailscale
+  ✓ Tailscale GUI: /Applications/Tailscale.app
+  ✓ GUI Running: Yes (PID 38968)
+  ✗ CLI Connected: Not yet (awaiting authentication)
+
+================================================================================
+STEP 1: AUTHENTICATE (Do This First!)
+================================================================================
+
+Option A - GUI Method (Easiest):
+  1. Open /Applications/Tailscale.app
+  2. Click the menu icon in top-right corner
+  3. Select "Authenticate" or "Sign in"
+  4. Complete login in browser
+
+Option B - CLI Method:
+  /opt/homebrew/bin/tailscale up
+  [Follow the URL in the output]
+
+================================================================================
+STEP 2: VERIFY CONNECTION
+================================================================================
+
+Check status:
+  tailscale status
+
+Get your Tailscale IP:
+  tailscale ip -4
+
+Expected Tailscale IP format: 100.x.x.x (e.g., 100.64.x.x)
+
+================================================================================
+STEP 3: CONNECT TO VPS (Once VPS is authorized)
+================================================================================
+
+SSH to VPS via Tailscale mesh:
+  ssh root@100.y.y.y
+  [Replace 100.y.y.y with VPS Tailscale IP from "tailscale status"]
+
+Or if VPS has hostname:
+  ssh root@vps-name
+
+================================================================================
+DREAMNOVA TAILNET DETAILS
+================================================================================
+
+Auth URL: https://login.tailscale.com/a/11d856a9014064
+Purpose: Private mesh network for DreamNova cluster
+Includes: This Mac + VPS
+
+================================================================================
+COMMON COMMANDS
+================================================================================
+
+Check connection status:
+  tailscale status
+
+Get your IP:
+  tailscale ip -4
+
+Detailed status:
+  tailscale status --details
+
+Disconnect:
+  tailscale down
+
+Reconnect:
+  tailscale up
+
+Enable SSH access on this Mac:
+  sudo tailscale up --ssh
+
+Accept routes from other machines:
+  sudo tailscale up --accept-routes
+
+Security - Block all incoming connections:
+  sudo tailscale up --shields-up
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+Service not responding:
+  1. Check: ps aux | grep tailscale
+  2. Restart: tailscale down && tailscale up
+  3. Or: Quit and reopen /Applications/Tailscale.app
+
+Can't connect to VPS:
+  1. Verify both online: tailscale status
+  2. VPS should show in list with "active" status
+  3. Ping test: ping 100.y.y.y
+
+If CLI gives permission errors:
+  sudo tailscale up --operator=$(whoami)
+
+================================================================================
+NEXT IMMEDIATE ACTIONS
+================================================================================
+
+1. Complete authentication through GUI or CLI
+2. Run: tailscale status
+3. Run: tailscale ip -4
+4. Save your Tailscale IP (100.x.x.x format)
+5. Wait for VPS to be connected
+6. Test SSH connection to VPS
+
+================================================================================
