@@ -1,5 +1,4 @@
 import { AmbientMusic } from "@/components/AmbientMusic";
-import { HilloulaBuilder, TestimonialsBuilder } from "@/components/BuilderPage";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { Toaster } from "@/components/ui/toaster";
@@ -8,29 +7,49 @@ import { CartProvider } from "@/contexts/CartContext";
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import About from "@/pages/about";
-import BreslovWisdom from "@/pages/breslovWisdom";
-import Chat from "@/pages/chat";
-import Checkout from "@/pages/checkout";
-import Contact from "@/pages/contact";
-import Donate from "@/pages/donate";
-import Downloads from "@/pages/downloads";
-import HaeshHype from "@/pages/haesh-hype";
-import Home from "@/pages/home";
-import Join from "@/pages/join";
-import KerenStyle from "@/pages/keren-style";
-import Lottery from "@/pages/lottery";
-import LotteryAdmin from "@/pages/lottery-admin";
-import Magazine from "@/pages/magazine";
-import NotFound from "@/pages/not-found";
-import Product from "@/pages/product";
-import Store from "@/pages/store";
-import Subscription from "@/pages/subscription";
-import SubscriptionManagement from "@/pages/subscription-management";
-import YaakovDashboard from "@/pages/yaaakov";
 import { QueryClientProvider } from "@tanstack/react-query";
+import { lazy, Suspense } from "react";
 import { Route, Switch } from "wouter";
 import { queryClient } from "./lib/queryClient";
+
+// ── Core pages (eagerly loaded — critical path) ──
+import Home from "@/pages/home";
+import Store from "@/pages/store";
+
+// ── Lazy-loaded pages (code split) ──
+const About = lazy(() => import("@/pages/about"));
+const BreslovWisdom = lazy(() => import("@/pages/breslovWisdom"));
+const Chat = lazy(() => import("@/pages/chat"));
+const Checkout = lazy(() => import("@/pages/checkout"));
+const Contact = lazy(() => import("@/pages/contact"));
+const Donate = lazy(() => import("@/pages/donate"));
+const Downloads = lazy(() => import("@/pages/downloads"));
+const HaeshHype = lazy(() => import("@/pages/haesh-hype"));
+const Join = lazy(() => import("@/pages/join"));
+const KerenStyle = lazy(() => import("@/pages/keren-style"));
+const Lottery = lazy(() => import("@/pages/lottery"));
+const LotteryAdmin = lazy(() => import("@/pages/lottery-admin"));
+const Magazine = lazy(() => import("@/pages/magazine"));
+const NotFound = lazy(() => import("@/pages/not-found"));
+const Product = lazy(() => import("@/pages/product"));
+const Subscription = lazy(() => import("@/pages/subscription"));
+const SubscriptionManagement = lazy(
+  () => import("@/pages/subscription-management"),
+);
+const YaakovDashboard = lazy(() => import("@/pages/yaaakov"));
+const BreslovVideos = lazy(() => import("@/pages/breslov-videos"));
+
+// Builder.io pages (lazy-loaded with named export wrappers)
+const HilloulaBuilder = lazy(() =>
+  import("@/components/BuilderPage").then((m) => ({
+    default: m.HilloulaBuilder,
+  })),
+);
+const TestimonialsBuilder = lazy(() =>
+  import("@/components/BuilderPage").then((m) => ({
+    default: m.TestimonialsBuilder,
+  })),
+);
 
 // Simple checkout success component
 const CheckoutSuccess = () => {
@@ -57,33 +76,46 @@ const CheckoutSuccess = () => {
   );
 };
 
+// Loading fallback for lazy routes
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center">
+    <div className="text-center">
+      <div className="w-8 h-8 border-4 border-keren-orange border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+      <p className="text-gray-500 text-sm">טוען...</p>
+    </div>
+  </div>
+);
+
 function Router() {
   return (
-    <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/store" component={Store} />
-      <Route path="/about" component={About} />
-      <Route path="/magazine" component={Magazine} />
-      <Route path="/join" component={Join} />
-      <Route path="/contact" component={Contact} />
-      <Route path="/checkout" component={Checkout} />
-      <Route path="/checkout/success" component={() => <CheckoutSuccess />} />
-      <Route path="/downloads" component={Downloads} />
-      <Route path="/donate" component={Donate} />
-      <Route path="/subscription" component={Subscription} />
-      <Route path="/subscription/manage" component={SubscriptionManagement} />
-      <Route path="/product/:id" component={Product} />
-      <Route path="/breslov-wisdom" component={BreslovWisdom} />
-      <Route path="/keren-style" component={KerenStyle} />
-      <Route path="/haesh-hype" component={HaeshHype} />
-      <Route path="/chat" component={Chat} />
-      <Route path="/lottery" component={Lottery} />
-      <Route path="/lottery/admin" component={LotteryAdmin} />
-      <Route path="/hilloula-2024" component={HilloulaBuilder} />
-      <Route path="/testimonials" component={TestimonialsBuilder} />
-      <Route path="/yaaakov" component={YaakovDashboard} />
-      <Route component={NotFound} />
-    </Switch>
+    <Suspense fallback={<PageLoader />}>
+      <Switch>
+        <Route path="/" component={Home} />
+        <Route path="/store" component={Store} />
+        <Route path="/about" component={About} />
+        <Route path="/magazine" component={Magazine} />
+        <Route path="/join" component={Join} />
+        <Route path="/contact" component={Contact} />
+        <Route path="/checkout" component={Checkout} />
+        <Route path="/checkout/success" component={() => <CheckoutSuccess />} />
+        <Route path="/downloads" component={Downloads} />
+        <Route path="/donate" component={Donate} />
+        <Route path="/subscription" component={Subscription} />
+        <Route path="/subscription/manage" component={SubscriptionManagement} />
+        <Route path="/product/:id" component={Product} />
+        <Route path="/breslov-wisdom" component={BreslovWisdom} />
+        <Route path="/breslov-videos" component={BreslovVideos} />
+        <Route path="/keren-style" component={KerenStyle} />
+        <Route path="/haesh-hype" component={HaeshHype} />
+        <Route path="/chat" component={Chat} />
+        <Route path="/lottery" component={Lottery} />
+        <Route path="/lottery/admin" component={LotteryAdmin} />
+        <Route path="/hilloula-2024" component={HilloulaBuilder} />
+        <Route path="/testimonials" component={TestimonialsBuilder} />
+        <Route path="/yaaakov" component={YaakovDashboard} />
+        <Route component={NotFound} />
+      </Switch>
+    </Suspense>
   );
 }
 
@@ -98,6 +130,10 @@ function App() {
                 <Toaster />
                 <InstallPrompt />
                 <AmbientMusic />
+                {/* Skip to content link for keyboard users */}
+                <a href="#main-content" className="skip-to-content">
+                  Skip to content
+                </a>
                 <ErrorBoundary>
                   <Router />
                 </ErrorBoundary>

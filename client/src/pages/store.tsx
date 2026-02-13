@@ -703,7 +703,7 @@ export default function Store() {
         onLanguageChange={setLanguage}
       />
 
-      <main className="bg-white min-h-screen">
+      <main id="main-content" className="bg-white min-h-screen">
         {/* ── Page Header ── */}
         <section className="bg-keren-blue-50 border-b border-gray-100">
           <div className="container-haesh py-10 text-center">

@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /checkout
+Disallow: /api/
+Disallow: /lottery/admin
+
+Sitemap: https://kerensitefinal.netlify.app/sitemap.xml

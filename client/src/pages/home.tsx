@@ -277,7 +277,7 @@ export default function Home() {
         onLanguageChange={setLanguage}
       />
 
-      <main>
+      <main id="main-content">
         {/* ── HERO SECTION ── */}
         <section className="relative bg-keren-blue overflow-hidden">
           {/* Subtle pattern overlay */}
